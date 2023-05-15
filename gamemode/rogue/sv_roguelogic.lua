@@ -1,39 +1,73 @@
+ROGUE.CurrentWave = 0
 ROGUE.CurrentRoom = 0
 local currentSpawnedNpcs = {}
 // index = targetname of spawns (starting from 1)
 // roomSpawns.allySpawns = {} list of ally spawns
 // roomSpawns.enemySpawns = {} you know
 local roomSpawns = roomSpawns or {}
+local merchantSpawns = merchantSpawns or {}
+local newWave, endWave
+local spawnsLeft
+local waveActive = false
 
 local function buildRoomSpawnsList()
 	local allPlayerSpawns = ents.FindByClass("rogue_spawn")
 	local allNpcSpawns = ents.FindByClass("rogue_npc_spawn")
-	local usedNums = {1}
 	for k, v in ipairs(allPlayerSpawns) do
 		local num = tonumber(v:GetName())
-		//if tonumber(v:GetName()) > highestNumberOfRooms then
-			//highestNumberOfRooms = tonumber(v:GetName())
-		//end
-		if not roomSpawns[num] then roomSpawns[num] = {} end
-		if not roomSpawns[num].allySpawns then roomSpawns[num].allySpawns = {} end
-		if not usedNums[num] then usedNums[num] = 1 end
-		roomSpawns[num].allySpawns[usedNums[num]] = v
-		usedNums[num] = usedNums[num] + 1
+		if num then
+			// if name is a number, it's a numerical spawn
+			if not roomSpawns[num] then roomSpawns[num] = {} end
+			if not roomSpawns[num].allySpawns then roomSpawns[num].allySpawns = {} end
+			table.insert(roomSpawns[num].allySpawns, v)
+		elseif v:GetName() == "merchant" then
+			table.insert(merchantSpawns, v)
+		end
 	end
-	usedNums = {1}
 	for k, v in ipairs(allNpcSpawns) do
 		local num = tonumber(v:GetName())
-		//if tonumber(v:GetName()) > highestNumberOfRooms then
-			//highestNumberOfRooms = tonumber(v:GetName())
-		//end
 		if not roomSpawns[num] then roomSpawns[num] = {} end
 		if not roomSpawns[num].enemySpawns then roomSpawns[num].enemySpawns = {} end
-		if not usedNums[num] then usedNums[num] = 1 end
-		roomSpawns[num].enemySpawns[usedNums[num]] = v
-		usedNums[num] = usedNums[num] + 1
+		table.insert(roomSpawns[num].enemySpawns, v)
 	end
 	print("Room spawns set up!")
 	PrintTable(roomSpawns)
+	PrintTable(merchantSpawns)
+end
+
+local function isSpawnOccupied(positionVector)
+	local startVec = positionVector + Vector(-64, -64, 0)
+	local endVec = positionVector + Vector(64, 64, 64)
+	local entsTab = ents.FindInBox(startVec, endVec)
+	local npcTab = {}
+	for k, v in ipairs(entsTab) do
+		if v:IsNPC() or v:IsNextBot() or v:IsPlayer() then table.insert(npcTab, v) end
+	end
+	return next(npcTab) != nil
+end
+
+local function merchantRoom()
+	local players = player.GetHumans()
+	for k, v in ipairs(players) do
+		local spawn = merchantSpawns[math.random(#merchantSpawns)]
+		v:SetPos(spawn:GetPos())
+	end
+end
+
+endWave = function()
+	print("wave ended!")
+	waveActive = false
+	local isMerchantTime = ROGUE.CurrentWave % 3 == 0
+	if isMerchantTime then
+		timer.Simple(2, merchantRoom)
+	else
+		timer.Simple(2, function()
+			newWave(ROGUE.CurrentRoom)
+		end)
+	end
+	net.Start("rogue_WaveCleared")
+		net.WriteBool(isMerchantTime)
+	net.Broadcast()
 end
 
 local function spawnNpc(position)
@@ -43,52 +77,64 @@ local function spawnNpc(position)
 	npc:SetPos(position)
 	npc:Spawn()
 	npc:Give("weapon_vj_smg1")
+	currentSpawnedNpcs[npc:EntIndex()] = npc
 	return npc
 end
 
-local function newWave()
+newWave = function(roomInt)
+	waveActive = true
+	local numberOfSpawns = math.random(4, 7) + (ROGUE.CurrentWave * 0.6)
+	numberOfSpawns = math.ceil(numberOfSpawns)
+	spawnsLeft = numberOfSpawns
+	local tab = roomSpawns[roomInt]
+	local spawnList = tab.enemySpawns
+	// spawn if player isnt in eyesight
+	ROGUE.CurrentWave = ROGUE.CurrentWave + 1
+	timer.Create("spawnNpcs", 1, 0, function()
+		if spawnsLeft <= 0 then
+			timer.Destroy("spawnNpcs")
+			return
+		end
+		local spawnPos = spawnList[math.random(#spawnList)]:GetPos()
+		if isSpawnOccupied(spawnPos) then
+			print("spawn occupied!")
+			return 
+		end
+		local npc = spawnNpc(spawnPos)
+		spawnsLeft = spawnsLeft - 1
+		print("spawnsleft: ", spawnsLeft)
+	end)
+	print("new wave", ROGUE.CurrentWave)
+end
+
+local function newRoom()
 	if not roomSpawns or next(roomSpawns) == nil then buildRoomSpawnsList() end
+	// teleport all players to new room
 	local randInt = math.random(#roomSpawns)
-	print(randInt)
-	PrintTable(roomSpawns)
 	local randRoom = roomSpawns[randInt]
 	local players = player.GetHumans()
 	for k, v in ipairs(players) do
 		local spawn = randRoom.allySpawns[math.random(#randRoom.allySpawns)]
 		v:SetPos(spawn:GetPos())
 	end
-
-	local numberOfSpawns = math.random(3, 5) + (ROGUE.CurrentRoom * 0.5)
-	numberOfSpawns = math.ceil(numberOfSpawns)
-	local spawnList = roomSpawns[randInt].enemySpawns
-	// spawn if player isnt in eyesight
-	ROGUE.CurrentRoom = ROGUE.CurrentRoom + 1
-	for i=1, numberOfSpawns do
-		local npc = spawnNpc(spawnList[math.random(#spawnList)]:GetPos())
-		currentSpawnedNpcs[npc:EntIndex()] = npc
-	end
-	print("new wave", ROGUE.CurrentRoom)
-end
-
-local function endWave()
-	print("wave ended!")
-	net.Start("rogue_WaveCleared")
-	net.Broadcast()
-	timer.Simple(2, newWave)
+	ROGUE.CurrentRoom = randInt
+	print("New room", ROGUE.CurrentRoom)
+	newWave(randInt)
 end
 
 local function gameStarted()
 	net.Start("rogue_GameStarted")
 	net.Broadcast()
-	newWave()
+	newRoom()
 end
 
 hook.Add("RogueHook_TouchTrigger", "StartGameHook", gameStarted)
 hook.Add("OnNPCKilled", "DecrementCurrentEnemies", function(npc, attacker, inflictor)
 	currentSpawnedNpcs[npc:EntIndex()] = nil
-	local count = 0
+	/*local count = 0
 	for _ in pairs(currentSpawnedNpcs) do count = count + 1 end
-	if count == 0 then endWave() end
+	if count == 0 then endWave() end*/
+	if spawnsLeft <= 0 and waveActive then endWave() end
 end)
 hook.Add("InitPostEntity", "BuildSpawnLists", buildRoomSpawnsList)
 

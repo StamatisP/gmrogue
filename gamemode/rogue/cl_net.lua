@@ -30,7 +30,8 @@ net.Receive("rogue_GameStarted", function(len)
 end)
 
 net.Receive("rogue_WaveCleared", function(len)
-	hook.Run("RogueHook_WaveCleared")
+	local isMerchantTime = net.ReadBool()
+	hook.Run("RogueHook_WaveCleared", isMerchantTime)
 end)
 
 net.Receive("rogue_S2CSpecialStatus", function(len)
@@ -50,4 +51,8 @@ net.Receive("rogue_MoneyAdded", function(len)
 	local amount = net.ReadFloat()
 	local ply = LocalPlayer()
 	ply.rogue.Money = ply.rogue.Money + amount
+end)
+
+net.Receive("rogue_ShopTriggerTouched", function(len)
+	hook.Run("RogueHook_ShopTriggerTouched")
 end)

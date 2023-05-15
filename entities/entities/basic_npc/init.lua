@@ -2,7 +2,7 @@ AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
 include("shared.lua")
 
-ENT.StartHealth = 50 + (ROGUE.CurrentRoom * 50)
+ENT.StartHealth = 50 + (0.5 * ROGUE.CurrentWave * 25)
 ENT.Model = {"models/Humans/Group01/Female_01.mdl"}
 ENT.HasMeleeAttack = false
 ENT.WeaponSpread = 2.5

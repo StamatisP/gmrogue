@@ -16,3 +16,25 @@ end
 function metatable:IsModifierActive(modifier)
 	return self.rogue.Modifiers[modifier]
 end
+
+hook.Add("M_Hook_Mult_RPM", "rpmfunc", function(swep, data)
+	local tab = {}
+	if not swep.RpmMult then
+		print("No RPM Mult!") 
+		swep.RpmMult = 1
+		return 
+	end
+	tab.mult = swep.RpmMult
+	return tab
+end)
+
+hook.Add("M_Hook_Mult_ReloadTime", "testreload", function(swep, data)
+	local tab = {}
+	if not swep.ReloadMult then
+		print("No Reload Mult!")
+		swep.ReloadMult = 1
+		return 
+	end
+	tab.mult = swep.ReloadMult
+	return tab
+end)

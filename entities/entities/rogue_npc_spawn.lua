@@ -1,5 +1,4 @@
-ENT.Type = "anim"
-ENT.Base = "base_entity"
+ENT.Type = "point"
 ENT.PrintName = "dummy"
 ENT.Author = "Mineturtle"
 AddCSLuaFile()

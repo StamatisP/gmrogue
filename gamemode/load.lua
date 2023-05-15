@@ -6,6 +6,9 @@ end
 
 TEAM_PLAYERS = 1
 
+UPGRADE_RPM = 1
+UPGRADE_RELOAD = 2
+
 team.SetUp(TEAM_PLAYERS, "Players", Color(177, 177, 177, 255))
 team.SetUp(TEAM_SPECTATOR, "Spectators", Color(100, 100, 100, 255))
 
@@ -19,6 +22,8 @@ if SERVER then
 	util.AddNetworkString("rogue_S2CSpecialStatus")
 	util.AddNetworkString("rogue_XPAdded")
 	util.AddNetworkString("rogue_MoneyAdded")
+	util.AddNetworkString("rogue_ShopTriggerTouched")
+	util.AddNetworkString("rogue_C2SClientUpgradeWeapon")
 end
 
 local function loadCharacters(dir)

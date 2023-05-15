@@ -107,7 +107,9 @@ concommand.Add("rogue_musicchill", fromAttackToLoop)
 
 hook.Add("RogueHook_GameStarted", "GameStart", startIntroAndLoop)
 hook.Add("RogueHook_AttackStarted", "AttackStart", onAttack)
-hook.Add("RogueHook_WaveCleared", "BackToChill", fromAttackToLoop)
+hook.Add("RogueHook_WaveCleared", "BackToChill", function(isMerchantTime)
+	if isMerchantTime then fromAttackToLoop() end
+end)
 
 // On enter starting room, after procgen: intro, then idle loop
 // On enter room with enemies: idle loop with more energy (?)
