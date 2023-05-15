@@ -83,7 +83,7 @@ end
 
 newWave = function(roomInt)
 	waveActive = true
-	local numberOfSpawns = math.random(4, 7) + (ROGUE.CurrentWave * 0.6)
+	local numberOfSpawns = math.random(3, 6) + (ROGUE.CurrentWave * 0.6)
 	numberOfSpawns = math.ceil(numberOfSpawns)
 	spawnsLeft = numberOfSpawns
 	local tab = roomSpawns[roomInt]
