@@ -10,10 +10,18 @@ CHARACTER.SpecialDuration = 10
 
 CHARACTER.Special = function(ply)
 	print("Special casted")
+	hook.Add("ScaleNPCDamage", "MercSpecial", function(npc, hitgroup, dmginfo)
+		local attacker = dmginfo:GetAttacker()
+		if not attacker:IsPlayer() then return nil end
+		local healthToAdd = dmginfo:GetDamage() / 8
+		local newHealth = math.Clamp(attacker:Health() + healthToAdd, 0, attacker:GetMaxHealth())
+		attacker:SetHealth(newHealth)
+	end)
 	ply.rogue.DamagePercent = ply.rogue.DamagePercent + 0.5
 end
 CHARACTER.SpecialEnd = function(ply)
 	print("Special Ended")
+	hook.Remove("ScaleNPCDamage", "MercSpecial")
 	ply.rogue.DamagePercent = ply.rogue.DamagePercent - 0.5
 end
 

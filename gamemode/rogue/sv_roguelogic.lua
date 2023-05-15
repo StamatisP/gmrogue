@@ -5,6 +5,37 @@ local currentSpawnedNpcs = {}
 // roomSpawns.enemySpawns = {} you know
 local roomSpawns = roomSpawns or {}
 
+local function buildRoomSpawnsList()
+	local allPlayerSpawns = ents.FindByClass("rogue_spawn")
+	local allNpcSpawns = ents.FindByClass("rogue_npc_spawn")
+	local usedNums = {1}
+	for k, v in ipairs(allPlayerSpawns) do
+		local num = tonumber(v:GetName())
+		//if tonumber(v:GetName()) > highestNumberOfRooms then
+			//highestNumberOfRooms = tonumber(v:GetName())
+		//end
+		if not roomSpawns[num] then roomSpawns[num] = {} end
+		if not roomSpawns[num].allySpawns then roomSpawns[num].allySpawns = {} end
+		if not usedNums[num] then usedNums[num] = 1 end
+		roomSpawns[num].allySpawns[usedNums[num]] = v
+		usedNums[num] = usedNums[num] + 1
+	end
+	usedNums = {1}
+	for k, v in ipairs(allNpcSpawns) do
+		local num = tonumber(v:GetName())
+		//if tonumber(v:GetName()) > highestNumberOfRooms then
+			//highestNumberOfRooms = tonumber(v:GetName())
+		//end
+		if not roomSpawns[num] then roomSpawns[num] = {} end
+		if not roomSpawns[num].enemySpawns then roomSpawns[num].enemySpawns = {} end
+		if not usedNums[num] then usedNums[num] = 1 end
+		roomSpawns[num].enemySpawns[usedNums[num]] = v
+		usedNums[num] = usedNums[num] + 1
+	end
+	print("Room spawns set up!")
+	PrintTable(roomSpawns)
+end
+
 local function spawnNpc(position)
 	local npc = ents.Create("npc_vj_bmssold_marines")
 	if not IsValid(npc) then return nil end
@@ -16,6 +47,7 @@ local function spawnNpc(position)
 end
 
 local function newWave()
+	if not roomSpawns or next(roomSpawns) == nil then buildRoomSpawnsList() end
 	local randInt = math.random(#roomSpawns)
 	print(randInt)
 	PrintTable(roomSpawns)
@@ -58,36 +90,7 @@ hook.Add("OnNPCKilled", "DecrementCurrentEnemies", function(npc, attacker, infli
 	for _ in pairs(currentSpawnedNpcs) do count = count + 1 end
 	if count == 0 then endWave() end
 end)
-hook.Add("InitPostEntity", "BuildSpawnLists", function()
-	local allPlayerSpawns = ents.FindByClass("rogue_spawn")
-	local allNpcSpawns = ents.FindByClass("rogue_npc_spawn")
-	local usedNums = {1}
-	for k, v in ipairs(allPlayerSpawns) do
-		local num = tonumber(v:GetName())
-		//if tonumber(v:GetName()) > highestNumberOfRooms then
-			//highestNumberOfRooms = tonumber(v:GetName())
-		//end
-		if not roomSpawns[num] then roomSpawns[num] = {} end
-		if not roomSpawns[num].allySpawns then roomSpawns[num].allySpawns = {} end
-		if not usedNums[num] then usedNums[num] = 1 end
-		roomSpawns[num].allySpawns[usedNums[num]] = v
-		usedNums[num] = usedNums[num] + 1
-	end
-	usedNums = {1}
-	for k, v in ipairs(allNpcSpawns) do
-		local num = tonumber(v:GetName())
-		//if tonumber(v:GetName()) > highestNumberOfRooms then
-			//highestNumberOfRooms = tonumber(v:GetName())
-		//end
-		if not roomSpawns[num] then roomSpawns[num] = {} end
-		if not roomSpawns[num].enemySpawns then roomSpawns[num].enemySpawns = {} end
-		if not usedNums[num] then usedNums[num] = 1 end
-		roomSpawns[num].enemySpawns[usedNums[num]] = v
-		usedNums[num] = usedNums[num] + 1
-	end
-	print("Room spawns set up!")
-	PrintTable(roomSpawns)
-end)
+hook.Add("InitPostEntity", "BuildSpawnLists", buildRoomSpawnsList)
 
 /*
 start game: choose weapon, head into xen portal
