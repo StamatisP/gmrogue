@@ -45,6 +45,7 @@ function metatable:Initialize()
 	self.rogue.CritDamagePercent = 2
 	self.rogue.SpecialEnergyNeeded = 20
 	self.rogue.CurrentSpecialEnergy = 0
+	self.rogue.Money = 0
 end
 
 function metatable:SetCharacter(character)
@@ -75,5 +76,12 @@ function metatable:SetEnergy(energy)
 	self.rogue.CurrentSpecialEnergy = energy
 	net.Start("rogue_EnergySet")
 		net.WriteFloat(energy)
+	net.Send(self)
+end
+
+function metatable:AddMoney(money)
+	self.rogue.Money = self.rogue.Money + money
+	net.Start("rogue_MoneyAdded")
+		net.WriteFloat(money)
 	net.Send(self)
 end

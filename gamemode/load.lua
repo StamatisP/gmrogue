@@ -18,6 +18,7 @@ if SERVER then
 	util.AddNetworkString("rogue_WaveCleared")
 	util.AddNetworkString("rogue_S2CSpecialStatus")
 	util.AddNetworkString("rogue_XPAdded")
+	util.AddNetworkString("rogue_MoneyAdded")
 end
 
 local function loadCharacters(dir)

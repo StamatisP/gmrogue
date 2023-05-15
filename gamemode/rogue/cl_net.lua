@@ -6,6 +6,8 @@ local function onCharacterChange(len)
 	ply.rogue.Character = character
 	ply.rogue.CurrentSpecialEnergy = 0
 	ply.rogue.Money = 0
+	ply.rogue.XP = 0
+	CL_LoadXP()
 end
 net.Receive("rogue_CharacterChange", onCharacterChange)
 
@@ -40,5 +42,12 @@ end)
 
 net.Receive("rogue_XPAdded", function(len)
 	local amount = net.ReadFloat()
-	ROGUE.XP = ROGUE.XP + amount
+	local ply = LocalPlayer()
+	ply.rogue.XP = ply.rogue.XP + amount
+end)
+
+net.Receive("rogue_MoneyAdded", function(len)
+	local amount = net.ReadFloat()
+	local ply = LocalPlayer()
+	ply.rogue.Money = ply.rogue.Money + amount
 end)

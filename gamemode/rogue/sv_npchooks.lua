@@ -1,9 +1,10 @@
 local function rewardNpcKill(npc, attacker, inflictor)
-	ROGUE.XP = ROGUE.XP + 100
 	net.Start("rogue_XPAdded")
 		net.WriteFloat(100)
 	net.Broadcast()
-	print("New XP: ", ROGUE.XP)
+	for k, v in ipairs(player.GetHumans()) do
+		v:AddMoney(100)
+	end
 end
 hook.Add( "OnNPCKilled", "rogue_RewardNPCKill", rewardNpcKill)
 

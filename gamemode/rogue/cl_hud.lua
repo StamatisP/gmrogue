@@ -1,8 +1,11 @@
 local _width = ScrW()
 local _height = ScrH()
-local initPost = false
+local initPost = initPost or false
 local ply = ply or LocalPlayer()
-local chara = chara or ply:GetCharacterDetails()
+local chara = chara or nil
+if not chara and initPost then
+	chara = ply:GetCharacterDetails()
+end
 
 hook.Add("InitPostEntity", "SetupHud", function()
 	initPost = true
@@ -46,20 +49,31 @@ local function drawEnergyBar()
 	surface.DrawRect(x, y, width * w, h)
 end
 
-local function drawMoneyBar()
-	local x, y = _width / 2 - 100, _height * 0.93
+local function drawXPBar()
+	local x, y = _width / 2 - 100, _height * 0.9
 	surface.SetFont("DermaLarge")
 	surface.SetDrawColor(0, 0, 0, 128)
 	surface.DrawRect(x + 50, y, 100, 30)
 	surface.SetTextColor(255, 255, 255, 255)
 	surface.SetTextPos(x + 75, y)
-	surface.DrawText(ROGUE.XP)
+	surface.DrawText(ply.rogue.XP)
+end
+
+local function drawMoneyBar()
+	local x, y = _width / 2 - 100, _height * 0.95
+	surface.SetFont("DermaLarge")
+	surface.SetDrawColor(0, 0, 0, 128)
+	surface.DrawRect(x + 50, y, 100, 30)
+	surface.SetTextColor(255, 255, 255, 255)
+	surface.SetTextPos(x + 75, y)
+	surface.DrawText("$"..ply.rogue.Money)
 end
 
 local function drawHud()
 	if not ply then ply = LocalPlayer() end
-	if chara == "" or not ply.rogue then return end
+	if not chara or not ply.rogue then return end
 	drawEnergyBar()
+	drawXPBar()
 	drawMoneyBar()
 end
 hook.Add("HUDPaint", "HudPaint_SpecialEnergyBar", drawHud)
