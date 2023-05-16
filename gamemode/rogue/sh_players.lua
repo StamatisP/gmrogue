@@ -20,7 +20,7 @@ end
 hook.Add("M_Hook_Mult_RPM", "rpmfunc", function(swep, data)
 	local tab = {}
 	if not swep.RpmMult then
-		print("No RPM Mult!") 
+		print("No RPM Mult!")
 		swep.RpmMult = 1
 		return 
 	end
