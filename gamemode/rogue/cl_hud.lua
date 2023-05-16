@@ -41,8 +41,6 @@ local function drawEnergyBar()
 	if ply.rogue.SpecialStatus then
 		local animDuration = ply:GetCharacterDetails().SpecialDuration
 		local specialEnd = ply.rogue.LastCastSpecial + animDuration
-		print((specialEnd - SysTime()) / 10)
-
 		width = Lerp((specialEnd - SysTime()) / animDuration, 0, 1)
 	end
 	surface.SetDrawColor(lerpColor(width, emptyEnergyColor, fullEnergyColor))
