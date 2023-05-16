@@ -8,6 +8,12 @@ TEAM_PLAYERS = 1
 
 UPGRADE_RPM = 1
 UPGRADE_RELOAD = 2
+UPGRADE_DAMAGE = 3
+
+ROGUE.UpgradeAmounts = {
+	[UPGRADE_RPM] = 0.25,
+	[UPGRADE_RELOAD] = -0.1
+}
 
 team.SetUp(TEAM_PLAYERS, "Players", Color(177, 177, 177, 255))
 team.SetUp(TEAM_SPECTATOR, "Spectators", Color(100, 100, 100, 255))

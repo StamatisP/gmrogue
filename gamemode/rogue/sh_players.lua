@@ -19,22 +19,24 @@ end
 
 hook.Add("M_Hook_Mult_RPM", "rpmfunc", function(swep, data)
 	local tab = {}
-	if not swep.RpmMult then
+	if not swep.RogueUpgrades then swep.RogueUpgrades = {} end
+	if not swep.RogueUpgrades[UPGRADE_RPM] then
 		print("No RPM Mult!")
-		swep.RpmMult = 1
+		swep.RogueUpgrades[UPGRADE_RPM] = 1
 		return 
 	end
-	tab.mult = swep.RpmMult
+	tab.mult = swep.RogueUpgrades[UPGRADE_RPM]
 	return tab
 end)
 
 hook.Add("M_Hook_Mult_ReloadTime", "testreload", function(swep, data)
 	local tab = {}
-	if not swep.ReloadMult then
+	if not swep.RogueUpgrades then swep.RogueUpgrades = {} end
+	if not swep.RogueUpgrades[UPGRADE_RELOAD] then
 		print("No Reload Mult!")
-		swep.ReloadMult = 1
+		swep.RogueUpgrades[UPGRADE_RELOAD] = 1
 		return 
 	end
-	tab.mult = swep.ReloadMult
+	tab.mult = swep.RogueUpgrades[UPGRADE_RELOAD]
 	return tab
 end)

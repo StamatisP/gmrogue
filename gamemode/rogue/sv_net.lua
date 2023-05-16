@@ -17,22 +17,16 @@ local function callSpecial(len, ply)
 end
 net.Receive("rogue_ClientRequestSpecial", callSpecial)
 
-
-local function rpmUpgrade(ply, weapon)
-	if not weapon.RpmMult then weapon.RpmMult = 1 end
-	weapon.RpmMult = weapon.RpmMult + 0.25
+local function upgradeWeapon(ply, weapon, type)
+	if not weapon.RogueUpgrades[type] then weapon.RogueUpgrades[type] = 1 end
+	weapon.RogueUpgrades[type] = weapon.RogueUpgrades[type] + ROGUE.UpgradeAmounts[type]
 end
-local function reloadUpgrade(ply, weapon)
-	if not weapon.ReloadMult then weapon.ReloadMult = 1 end
-	weapon.ReloadMult = weapon.ReloadMult + 0.25
-end
-local upgradeTable = {
-	[UPGRADE_RPM] = rpmUpgrade,
-	[UPGRADE_RELOAD] = reloadUpgrade
-}
 local function handleWeaponUpgrade(len, ply)
 	local upgradeType = net.ReadUInt(4)
 	local weapon = net.ReadEntity()
-	if upgradeTable[upgradeType] then upgradeTable[upgradeType](ply, weapon) end
+	if not weapon.RogueUpgrades then weapon.RogueUpgrades = {} end
+	if ROGUE.UpgradeAmounts[upgradeType] then
+		upgradeWeapon(ply, weapon, upgradeType)
+	end
 end
 net.Receive("rogue_C2SClientUpgradeWeapon", handleWeaponUpgrade)
