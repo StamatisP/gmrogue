@@ -1,4 +1,5 @@
 ROGUE.CurrentWave = 0
+ROGUE.RoomsCleared = 0
 ROGUE.CurrentRoom = 0
 local currentSpawnedNpcs = {}
 // index = targetname of spawns (starting from 1)
@@ -131,10 +132,7 @@ end
 hook.Add("RogueHook_TouchTrigger", "StartGameHook", gameStarted)
 hook.Add("OnNPCKilled", "DecrementCurrentEnemies", function(npc, attacker, inflictor)
 	currentSpawnedNpcs[npc:EntIndex()] = nil
-	/*local count = 0
-	for _ in pairs(currentSpawnedNpcs) do count = count + 1 end
-	if count == 0 then endWave() end*/
-	if spawnsLeft <= 0 and waveActive then endWave() end
+	if spawnsLeft <= 0 and waveActive and next(currentSpawnedNpcs) == nil then endWave() end
 end)
 hook.Add("InitPostEntity", "BuildSpawnLists", buildRoomSpawnsList)
 
