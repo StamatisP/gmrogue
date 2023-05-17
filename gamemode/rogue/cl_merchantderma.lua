@@ -25,7 +25,7 @@ function UpgradeButton:TextUpdate()
 		multString = "Reload"
 	end
 	multAmount = upgradeTable[self.upgradeType]
-	self:SetText(string.format("%s: %Gx", multString, multAmount))
+	self:SetText(string.format("%s: %Gx\n$%s", multString, multAmount, self.cost))
 end
 function UpgradeButton:DoClick()
 	self.ply.rogue.Money = self.ply.rogue.Money - self.cost
@@ -44,18 +44,19 @@ end
 vgui.Register("UpgradeButton", UpgradeButton, "DButton")
 
 local function buildWeaponUpgradeList(weapon)
-	if weaponUpgradeList then 	weaponUpgradeList = nil end
+	if weaponUpgradeList then weaponUpgradeList = nil end
+	local function _createButton(upgradeType)
+		local button = vgui.Create("UpgradeButton", weaponUpgradeList)
+		button:SetupUpgrade(upgradeType, weapon)
+		button:SetSize(100, 100)
+	end
 	weaponUpgradeList = vgui.Create("DIconLayout", shopFrame)
 	weaponUpgradeList:Dock(FILL)
 	weaponUpgradeList:DockMargin(0, 25, 0, 0)
 	weaponUpgradeList:SetSpaceY(25)
 	if weapon.Primary.Automatic then
-		local rpmUpgrade = vgui.Create("UpgradeButton", weaponUpgradeList)
-		rpmUpgrade:SetupUpgrade(UPGRADE_RPM, weapon)
-		rpmUpgrade:SetSize(100, 100)
-		local reloadUpgrade = vgui.Create("UpgradeButton", weaponUpgradeList)
-		reloadUpgrade:SetupUpgrade(UPGRADE_RELOAD, weapon)
-		reloadUpgrade:SetSize(100, 100)
+		_createButton(UPGRADE_RPM)
+		_createButton(UPGRADE_RELOAD)
 	end
 end
 
